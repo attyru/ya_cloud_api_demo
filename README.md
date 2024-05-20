@@ -10,7 +10,7 @@ INSTALLATON:
 
 USE:
 
-1. select output device from list. or view device indexes with arg --list_only and run with arg --device N
+1. select output device from list. or view device indexes with arg --list_only True and run with arg --device N
 2. u can view recognised text from audio out in console, gui widget, and logfile.
 
 CL args: --secret your_API_key_or_IAM_token --log path_2_log_file_4_recognized_text_def_./recognition_log.txt --duration session_duration_in_seconds_def_300 --device forced_device_number_def_None --list_only true_or_false_def_false
