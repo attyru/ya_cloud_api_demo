@@ -103,13 +103,18 @@ def audio_generator(pyaudio_obj, device_index, session_duration):
             yield stt_pb2.StreamingRequest(chunk=stt_pb2.AudioChunk(data=in_data))
 
 
-def run(secret, session_duration, log_file, update_callback):
+def run(secret, session_duration, log_file, update_callback, device):
     credentials = grpc.ssl_channel_credentials()
     channel = grpc.secure_channel('stt.api.cloud.yandex.net:443', credentials)
     stub = stt_service_pb2_grpc.RecognizerStub(channel)
 
     with pyaudio.PyAudio() as pyaudio_obj:
-        device_index = get_device_index(pyaudio_obj)
+
+        if device != None:
+            device_index = device
+        else:
+            device_index = get_device_index(pyaudio_obj)
+
         audio_stream = audio_generator(
             pyaudio_obj, device_index, session_duration)
 
@@ -141,7 +146,7 @@ def run(secret, session_duration, log_file, update_callback):
                 raise
 
 
-def create_and_update_widget(run, secret, session_duration, log_file):
+def create_and_update_widget(run, secret, session_duration, log_file, device):
     root = tk.Tk()
     root.attributes('-topmost', True)
     root.overrideredirect(True)
@@ -212,7 +217,7 @@ def create_and_update_widget(run, secret, session_duration, log_file):
     root.geometry("600x400+100+100")
 
     threading.Thread(target=run, args=(secret, session_duration,
-                     log_file, wrapped_update_callback)).start()
+                     log_file, device, wrapped_update_callback)).start()
 
     root.mainloop()
 
@@ -224,6 +229,9 @@ if __name__ == '__main__':
                         help='Session duration in seconds')
     parser.add_argument('--log', type=str, default='recognition_log.txt',
                         help='Log file for recognized text')
+    parser.add_argument('--device', type=int, default=None,
+                        help='Force default device')
     args = parser.parse_args()
 
-    create_and_update_widget(run, args.secret, args.duration, args.log)
+    create_and_update_widget(
+        run, args.secret, args.duration, args.log, args.device)
