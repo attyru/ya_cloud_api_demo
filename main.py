@@ -231,6 +231,8 @@ if __name__ == '__main__':
                         help='Log file for recognized text')
     parser.add_argument('--device', type=int, default=None,
                         help='Force default device')
+    parser.add_argument('--list_only', type=bool, default=False,
+                        help='Only print list of available devices')
     args = parser.parse_args()
 
     create_and_update_widget(
