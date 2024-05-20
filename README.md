@@ -1,7 +1,6 @@
-
+This is an example of using real-time voice recognition from an audio output device using the Yandex Cloud API.
 
 INSTALLATON:
-
 1. install Python 3.10.11
 2. git clone https://github.com/attyru/ya_cloud_api_demo
 3. pip install yandex-speechkit pyaudiowpatch argparse grpcio
