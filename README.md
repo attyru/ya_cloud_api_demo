@@ -18,10 +18,10 @@ CL args: --secret your_API_key_or_IAM_token --log path_2_log_file_4_recognized_t
 Known issues:
 
 1. The text is recognized in parts - given the previous ones, so the output looks ugly. I'm working on a fix.
-2. Mixed languages are not recognized, only Russian.
-3. The widget does not have the ability to interactively resize the window.
+2. Mixed languages are not recognized, only Russian. Done.
+3. The widget does not have the ability to interactively resize the window. Done.
 4. The close button on the widget does not work correctly - it closes the widget but does not terminate the process.
-5. The minimize button on the widget throws an exception.
+5. The minimize button on the widget throws an exception. Done.
 
 Planned features:
 
