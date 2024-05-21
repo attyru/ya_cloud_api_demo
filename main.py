@@ -10,7 +10,30 @@ from tkinter import scrolledtext
 import threading
 
 
+def get_devices_list():
+
+    with pyaudio.PyAudio() as pyaudio_obj:
+
+        devices_count = pyaudio_obj.get_device_count()
+        available_devices = []
+
+        for i in range(devices_count):
+            device_info = pyaudio_obj.get_device_info_by_index(i)
+            if device_info['maxOutputChannels'] > 0 and device_info['hostApi'] == pyaudio_obj.get_host_api_info_by_type(pyaudio.paWASAPI)['index'] and device_info['hostApi'] != -1:
+                available_devices.append((i, device_info['name']))
+
+        print("Available Output Devices (WASAPI):")
+        for index, (device_index, device_name) in enumerate(available_devices):
+            print(f"{index}: {device_name}")
+
+        if not available_devices:
+            print("No available output devices found.")
+
+    sys.exit()
+
+
 def get_device_index(pyaudio_obj):
+
     devices_count = pyaudio_obj.get_device_count()
     available_devices = []
 
@@ -147,46 +170,15 @@ def run(secret, session_duration, log_file, update_callback, device):
 
 
 def create_and_update_widget(run, secret, session_duration, log_file, device):
+
     root = tk.Tk()
+    root.title('Recognition')
     root.attributes('-topmost', True)
-    root.overrideredirect(True)
     root.attributes('-alpha', 0.8)
-    root.resizable(True, True)
-
-    def close_window():
-        root.destroy()
-        sys.exit()
-
-    def minimize_window():
-        root.iconify()
-
-    # Frame for the title bar with buttons
-    title_bar = tk.Frame(root, bg='gray', relief='raised', bd=2)
-    title_bar.pack(fill='x')
-
-    # Add the minimize and close buttons to the right side of the title bar
-    close_button = tk.Button(
-        title_bar, text="X", command=close_window, bg='gray', fg='white', bd=0)
-    close_button.pack(side='right')
-
-    minimize_button = tk.Button(
-        title_bar, text="_", command=minimize_window, bg='gray', fg='white', bd=0)
-    minimize_button.pack(side='right')
 
     text_widget = scrolledtext.ScrolledText(
         root, wrap=tk.WORD, width=50, height=20)
-    text_widget.pack(expand=True, fill='both')
-
-    def on_mouse_down(event):
-        root._drag_data = {'x': event.x, 'y': event.y}
-
-    def on_mouse_move(event):
-        x = root.winfo_pointerx() - root._drag_data['x']
-        y = root.winfo_pointery() - root._drag_data['y']
-        root.geometry(f"+{x}+{y}")
-
-    title_bar.bind('<ButtonPress-1>', on_mouse_down)
-    title_bar.bind('<B1-Motion>', on_mouse_move)
+    text_widget.grid(row=0, column=0, columnspan=2, sticky='nsew')
 
     def update_text(text):
         text_widget.insert(tk.END, text + '\n')
@@ -201,20 +193,16 @@ def create_and_update_widget(run, secret, session_duration, log_file, device):
     transparency_scale = tk.Scale(root, from_=0.2, to=1.0, resolution=0.01,
                                   orient=tk.HORIZONTAL, label='Transparency', command=set_transparency)
     transparency_scale.set(0.8)
-    transparency_scale.pack()
+    transparency_scale.grid(row=1, column=0, columnspan=2,
+                            sticky='ew', padx=5, pady=5)
 
-    def on_scale_click(event):
-        title_bar.unbind('<ButtonPress-1>')
-        title_bar.unbind('<B1-Motion>')
-
-    def on_scale_release(event):
-        title_bar.bind('<ButtonPress-1>', on_mouse_down)
-        title_bar.bind('<B1-Motion>', on_mouse_move)
-
-    transparency_scale.bind('<ButtonPress-1>', on_scale_click)
-    transparency_scale.bind('<ButtonRelease-1>', on_scale_release)
+    # Configure grid weights to make the layout responsive
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_columnconfigure(1, weight=1)
 
     root.geometry("600x400+100+100")
+    root.resizable(True, True)
 
     threading.Thread(target=run, args=(secret, session_duration,
                      log_file, device, wrapped_update_callback)).start()
@@ -231,9 +219,12 @@ if __name__ == '__main__':
                         help='Log file for recognized text')
     parser.add_argument('--device', type=int, default=None,
                         help='Force default device')
-    parser.add_argument('--list_only', type=bool, default=False,
+    parser.add_argument('--list', type=bool, default=False,
                         help='Only print list of available devices')
     args = parser.parse_args()
 
-    create_and_update_widget(
-        run, args.secret, args.duration, args.log, args.device)
+    if args.list:
+        get_devices_list()
+    else:
+        create_and_update_widget(
+            run, args.secret, args.duration, args.log, args.device)
