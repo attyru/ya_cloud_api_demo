@@ -94,7 +94,7 @@ def get_recognition_options(speakers):
             ),
             language_restriction=stt_pb2.LanguageRestrictionOptions(
                 restriction_type=stt_pb2.LanguageRestrictionOptions.WHITELIST,
-                language_code=['ru-RU']
+                language_code=['auto']
             ),
             audio_processing_type=stt_pb2.RecognitionModelOptions.REAL_TIME
         )
