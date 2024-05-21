@@ -205,7 +205,7 @@ def create_and_update_widget(run, secret, session_duration, log_file, device):
     root.resizable(True, True)
 
     threading.Thread(target=run, args=(secret, session_duration,
-                     log_file, device, wrapped_update_callback)).start()
+                     log_file, wrapped_update_callback, device)).start()
 
     root.mainloop()
 
